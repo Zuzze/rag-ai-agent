@@ -41,6 +41,8 @@ export default function ChatPage() {
       pooling: process.env.NEXT_PUBLIC_EMBEDDING_POOLING_METHOD,
       normalize: process.env.NEXT_PUBLIC_EMBEDDING_NORMALIZED,
     });
+    console.log("Embedding output", output);
+
     const embedding = JSON.stringify(Array.from(output.data));
 
     const {
@@ -49,6 +51,8 @@ export default function ChatPage() {
 
     if (!session) return;
 
+    console.log("User prompt embedded", embedding);
+
     // Submit data to edge function /chat that will send the request to the LLM (OpenAI)
     handleSubmit(e, {
       options: {
@@ -56,6 +60,7 @@ export default function ChatPage() {
           authorization: `Bearer ${session.access_token}`,
         },
         body: {
+          // This could also be done server side by taking the latest user prompt and embedding it there
           embedding,
         },
       },

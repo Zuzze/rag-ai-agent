@@ -2,6 +2,7 @@
 --
 -- Returns a setof document_sections so that we can use PostgREST resource embeddings (joins with other tables)
 -- Additional filtering like limits can be chained to this function call
+-- 384 comes from the embedding model we're using, change this if you change the model
 create or replace function match_document_sections(embedding vector(384), match_threshold float)
 returns setof document_sections
 language plpgsql
@@ -13,6 +14,7 @@ begin
   from document_sections
 
   -- The inner product is negative, so we negate match_threshold
+  -- Without this, all documents will be returned, now only matching documents will be returned
   where document_sections.embedding <#> embedding < -match_threshold
 
   -- Our embeddings are normalized to length 1, so cosine similarity
