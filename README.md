@@ -4,6 +4,8 @@
 Create MVP for securely chatting with your documents using RAG, LLM (OpenAI), and vector database (pgVector extension for Supabase).
 </p>
 
+![alt text](image.png)
+
 ## Features
 
 - **Interactive Chat User Interface:** Interact with your documents, leveraging the capabilities of OpenAI’s GPT models and retrieval augmented generation (RAG) via Vercel's AI SDK.
@@ -25,18 +27,15 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 ```
 
-You can get the supabase url and anon key from by running `npx supabase start` in the root folder. Note! This requires you to have a Docker and supabase acocunt.
+You can get the supabase url and anon key from by running `npx supabase start` in the root folder. Note! This requires you to have a Docker and supabase account.
 
 You also need the .env file in supabase/functions folder with the following API keys (server-side):
 
 ```
 OPENAI_API_KEY="sk-proj-..."
+# only if real-time web search is enabled, currently disabled by default
 TAVILY_API_KEY="tvly-..."
 ```
 
 4. Run `npm run dev` in root folder to open client in localhost:3000
 5. Run `npm run edge` to run supabase edge functions in localhost:54321
-
-## Deployed demo version
-
-Coming soon!
