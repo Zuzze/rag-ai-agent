@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "@ptm/mm-mark": "jsr:@ptm/mm-mark@^0.2.22",
+    "@rodney/parsedown": "jsr:@rodney/parsedown@^1.4.3"
+  }
+}

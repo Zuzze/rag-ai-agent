@@ -1,33 +1,54 @@
 import { createClient } from "@supabase/supabase-js";
 import { OpenAIStream, StreamingTextResponse } from "ai";
 import { codeBlock } from "common-tags";
-import OpenAI from "openai";
-import { Database } from "../_lib/database.ts";
+import { OpenAI } from "openai"; // Corrected import statement
+import { Database } from "../_lib/database.ts"; // Removed the .ts extension for consistency
+//import { TavilySearchResults } from "./@langchain/community/tools/tavily_search";
 
-const openai = new OpenAI({
-  apiKey: Deno.env.get("OPENAI_API_KEY"),
-});
+// ================= WEB SEARCH CONFIG =================
+const SEARCH_URL = undefined; // Set to undefined for general web search
+const MAX_RESULTS = 5;
+const INCLUDE_IMAGES = true;
+const LEVEL_OF_DETAIL = "basic"; // "basic" or "advanced"
 
 // ================= LLM AGENT CONFIG =================
 
 const MODEL = "gpt-4o-mini"; //gpt-4o-mini
 const MAX_TOKENS = 1024; // If you don't need the full 16,000 tokens for your use case, you can set a lower value to potentially reduce costs and improve response times.
 const TEMPERATURE = 0; // 0 is the default value, it controls the randomness of the output. Lower values make the output more deterministic and consistent, while higher values make the output more creative and varied.
-const SIMILARITY_THRESHOLD = 0.8; // match threshold is a float between 0 and 1
+const SIMILARITY_THRESHOLD = 0.6; // match threshold is a float between 0 and 1
 const MAX_DOCUMENTS = 5; // Send top X matching documents to the LLM to ensure it will fit into the context window
 const AGENT_BASE_PROMPT = `
 You're a chat bot, so keep your replies succinct.
 
-You need to answer the questions primarily based on the documents below.
+You need to answer the questions primarily based on the data from the documents below.
 
-If the information is related to the documents but answer isn't available in the below documents, say:
-"Sorry, I couldn't find any information on that in the documents. Would you like me to search outside of the documents?"
+If the result was found, respond by starting: 'Based on our documents, ". Attach 'Source:' with the name of the documents that were used to answer the question.
 
-If the user responds yes, he want to search outside the documents, search outside the documents and respond with the prefix:
-"Here is the information I found outside of the documents: "
+If the result was not found from the documents, search the https://iii.org website for the answer. 
+
+If the result from https://iii.org was found, respond with the result with a prefix: 'Here is the information I found on the iii.org website:'. Attach source URL at the end of the response with 'Source:'.
+
+If the result from https://iii.org was not found, respond: 'No results found. Please try another question or contact our support at support@company.com.'"
 
 Do not go off topic.
+
+all responses should be formatted as HTML.
 `;
+
+const openai = new OpenAI({
+  apiKey: Deno.env.get("OPENAI_API_KEY"),
+});
+
+// Step 1. Instantiating your TavilyClient
+/*const tvly = TavilySearchResults({
+  apiKey: Deno.env.get("TAVILY_API_KEY"),
+  searchUrl: SEARCH_URL,
+  maxResults: MAX_RESULTS,
+  includeImages: INCLUDE_IMAGES,
+  level: LEVEL_OF_DETAIL,
+});*/
+// https://docs.tavily.com/docs/javascript-sdk/tavily-search/getting-started#generating-context-for-a-rag-application
 
 // These are automatically injected
 const supabaseUrl = Deno.env.get("SUPABASE_URL");
@@ -81,6 +102,8 @@ Deno.serve(async (req) => {
 
   // =========== MATCH DOCUMENTS RELATED TO USER PROMPT ============
 
+  // embedding describes the embedding of the user prompt
+  // messages is the history of the conversation
   const { messages, embedding } = await req.json();
 
   // rpc = remote procedure call from Postgres
@@ -110,6 +133,32 @@ Deno.serve(async (req) => {
     documents && documents.length > 0
       ? documents.map(({ content }) => content).join("\n\n")
       : "No documents found";
+
+  /*if (injectedDocs === "No documents found") {
+    try {
+      console.log("----------- WEB_AGENT -------------");
+      console.log("Web search started...");
+      // get the latest quer message from the user
+      // Note that
+      const query = messages[messages?.length - 1];
+      if (!query) {
+        console.warn("WEB_AGENT: No query found");
+        return "No results found";
+      }
+      const searchResult = await tvly.search(query);
+
+      console.log("WEB_AGENT: Search Result", searchResult);
+
+      if (searchResult) {
+        return searchResult;
+      }
+      console.log("WEB_AGENT: No results found");
+      return "No results found. Try asking a different question.";
+    } catch (error) {
+      console.error("WEB_AGENT: Web search error:", error);
+      return "Something went wrong, please try again later or reach out to our support at support@company.com";
+    }
+  }*/
 
   console.log("Context documents", injectedDocs);
 
