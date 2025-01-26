@@ -1,17 +1,14 @@
 "use client";
-
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
 import { Database } from "@/supabase/functions/_lib/database";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 export default function FilesPage() {
   const supabase = createClientComponentClient<Database>();
-  const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   // fetch all uploaded documents to display in the UI
   const {
@@ -56,34 +53,38 @@ export default function FilesPage() {
   }, [isError]);
 
   return (
-    <div className="object-cover bg-cover bg-no-repeat h-[calc(100vh+53px)] -mt-[53px] bg-[url('https://cdn.pixabay.com/photo/2021/09/19/21/38/nature-6639127_1280.jpg')]">
-      <div className="m-4 sm:m-10 flex flex-col gap-8 grow items-stretch ">
-        <div className="h-40 flex flex-col justify-center items-center">
+    <div className="object-cover bg-cover bg-no-repeat h-full overflow-hidden top-0 left-0 w-full bg-[url('https://cdn.pixabay.com/photo/2021/09/19/21/38/nature-6639127_1280.jpg')]">
+      <div className="p-4 pb-0 sm:p-10 sm:pb-0 flex flex-col gap-8 grow items-stretch overflow-y-auto h-full">
+        <div className="h-40 pt-10 flex flex-col justify-center items-center">
           <Input
             type="file"
             name="file"
+            accept=".xls,.md,"
+            multiple
             ref={fileInputRef}
             key={fileInputRef.current?.name}
             className="cursor-pointer w-full max-w-xs bg-white/50 backdrop-blur-xl rounded-full hover:bg-white hover:text-gray-900"
             onChange={async (e) => {
-              const file = e.target.files?.[0];
-              if (file) {
-                // reference the files bucket
-                const { error } = await supabase.storage.from("files").upload(
-                  // generate a random uuid for the file name to avoid conflicts in case multiple uploaded files have the same name
-                  // keep the file name to ensure no data (title) is lost
-                  `${crypto.randomUUID()}/${file.name}`,
-                  file
-                );
+              console.log("FILES", e.target.files);
+              for (const file of Array.from(e.target.files ?? [])) {
+                if (file) {
+                  // reference the files bucket
+                  const { error } = await supabase.storage.from("files").upload(
+                    // generate a random uuid for the file name to avoid conflicts in case multiple uploaded files have the same name
+                    // keep the file name to ensure no data (title) is lost
+                    `${crypto.randomUUID()}/${file.name}`,
+                    file
+                  );
 
-                if (error) {
-                  displayError();
-                } else {
-                  toast({
-                    variant: "default",
-                    description: `File ${file.name} uploaded successfully.`,
-                  });
-                  clearFileInput();
+                  if (error) {
+                    displayError();
+                  } else {
+                    toast({
+                      variant: "default",
+                      description: `File ${file.name} uploaded successfully.`,
+                    });
+                    clearFileInput();
+                  }
                 }
               }
             }}
@@ -94,17 +95,17 @@ export default function FilesPage() {
             <Loader2 className="h-5 w-5 animate-spin" />
           </div>
         )}
-        {(!documents || documents.length === 0) && (
-          <p className="text-center text-white text-xl text-foreground/50 pt-5">
+        {(!documents || documents.length === 0) && !isLoading && (
+          <p className="text-center text-white text-xl text-foreground/50 pt-0">
             No documents uploaded yet.
           </p>
         )}
         {documents && (
-          <div className="grid  sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid pb-10 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {documents.map((document) => (
               <div
                 key={document.id}
-                className="flex bg-white/50 backdrop-blur-xl flex-col gap-2 justify-center items-center border rounded-md p-4 sm:p-6 text-center overflow-hidden cursor-pointer hover:bg-slate-100/70"
+                className="flex min-h-40 bg-white/50 backdrop-blur-xl flex-col gap-2 justify-center items-center border rounded-md p-4 sm:p-6 text-center overflow-hidden cursor-pointer hover:bg-slate-100/70"
                 onClick={async () => {
                   if (!document.storage_object_path) {
                     toast({
@@ -136,15 +137,15 @@ export default function FilesPage() {
               >
                 <div className="flex flex-row gap-3  justify-between w-full items-center ">
                   <div className="w-10 h-10 flex items-center justify-center">
-                    <svg
-                      width="50px"
-                      height="50px"
-                      version="1.1"
-                      viewBox="0 0 100 100"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path d="m82 31.199c0.10156-0.60156-0.10156-1.1992-0.60156-1.6992l-24-24c-0.39844-0.39844-1-0.5-1.5977-0.5h-0.19922-31c-3.6016 0-6.6016 3-6.6016 6.6992v76.5c0 3.6992 3 6.6992 6.6016 6.6992h50.801c3.6992 0 6.6016-3 6.6016-6.6992l-0.003906-56.699v-0.30078zm-48-7.1992h10c1.1016 0 2 0.89844 2 2s-0.89844 2-2 2h-10c-1.1016 0-2-0.89844-2-2s0.89844-2 2-2zm32 52h-32c-1.1016 0-2-0.89844-2-2s0.89844-2 2-2h32c1.1016 0 2 0.89844 2 2s-0.89844 2-2 2zm0-16h-32c-1.1016 0-2-0.89844-2-2s0.89844-2 2-2h32c1.1016 0 2 0.89844 2 2s-0.89844 2-2 2zm0-16h-32c-1.1016 0-2-0.89844-2-2s0.89844-2 2-2h32c1.1016 0 2 0.89844 2 2s-0.89844 2-2 2zm-8-15v-17.199l17.199 17.199z" />
-                    </svg>
+                    <img
+                      src={
+                        document.name?.endsWith(".md")
+                          ? "https://icon-library.com/images/text-icon-png/text-icon-png-8.jpg"
+                          : "https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Microsoft_Office_Excel_%282019%E2%80%93present%29.svg/1024px-Microsoft_Office_Excel_%282019%E2%80%93present%29.svg.png"
+                      }
+                      alt="file type"
+                      style={{ width: "100%", height: "auto" }}
+                    />
                   </div>
                   <p
                     className="text-sm w-full line-clamp-2 text-left"

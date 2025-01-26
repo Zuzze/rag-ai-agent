@@ -1,12 +1,11 @@
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
-import { PropsWithChildren } from 'react';
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { PropsWithChildren } from "react";
 
 export default async function FilesLayout({ children }: PropsWithChildren) {
   // Keep cookies in the JS execution context for Next.js build
   const cookieStore = cookies();
-
   const supabase = createServerComponentClient({ cookies: () => cookieStore });
 
   const {
@@ -14,7 +13,7 @@ export default async function FilesLayout({ children }: PropsWithChildren) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return redirect('/login');
+    return redirect("/login");
   }
 
   return <>{children}</>;

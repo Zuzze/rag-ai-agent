@@ -71,12 +71,12 @@ export default function ChatPage() {
     <div className=" w-full h-full z-0 relative">
       <img
         src="https://cdn.pixabay.com/photo/2019/06/03/23/37/death-valley-4250244_1280.jpg"
-        className="absolute top-[-53px] left-0 w-full h-[100vh] bg-cover object-cover z-0"
+        className="absolute left-0 w-full h-[100vh] bg-cover object-cover z-0"
       />
-      <div className=" flex flex-col items-center w-full h-full z-10 relative mx-auto">
-        <div className="flex mx-auto flex-col w-full gap-6 grow  p-4 sm:p-8 rounded-sm overflow-y-auto">
-          <div className="max-w-6xl mx-auto h-full">
-            <div className="border-slate-400 rounded-lg flex flex-col justify-start gap-4 pr-2 grow">
+      <div className=" flex flex-col w-full h-full z-10 relative mx-auto py-10">
+        <div className="flex mx-auto flex-col w-full gap-6 grow  p-4 sm:p-8 rounded-sm overflow-y-auto mb-12">
+          <div className="max-w-6xl mx-auto h-full w-full">
+            <div className="border-slate-400 rounded-lg w-full flex flex-col justify-start gap-4 pr-2 grow">
               {messages.map(({ id, role, content }) => (
                 <div
                   key={id}
@@ -102,7 +102,7 @@ export default function ChatPage() {
               </div>
             )}
           </div>
-          <div className="max-w-6xl w-full mx-auto">
+          <div className="max-w-6xl w-full mx-auto fixed bottom-10">
             <form
               className="flex items-center space-x-2 gap-2 w-full"
               onSubmit={handleSend}

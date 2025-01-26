@@ -18,7 +18,7 @@ export default async function Index() {
         loop
         muted
         playsInline
-        className="absolute top-0 left-0 z-0 w-[100vw] -mt-[53px] h-[100vh] object-cover"
+        className="absolute top-0 left-0 z-0 w-[100vw] h-[100vh] object-cover"
       />
       <div className="flex flex-col gap-14 max-w-4xl px-3 py-16 lg:py-24 text-foreground relative z-10">
         <div className="flex flex-col items-center mb-4 lg:mb-12">

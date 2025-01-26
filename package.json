@@ -4,6 +4,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "edge": "npx supabase functions serve",
     "gen:types": "supabase gen types typescript --local > supabase/functions/_lib/database.ts"
   },
   "dependencies": {
@@ -31,6 +32,7 @@
     "tailwindcss": "3.3.3",
     "tailwindcss-animate": "^1.0.7",
     "tavily": "^1.0.2",
+    "text-clipper": "^2.2.0",
     "three-dots": "^0.3.2",
     "typescript": "5.1.3"
   },

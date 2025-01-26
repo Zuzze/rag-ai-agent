@@ -100,8 +100,3 @@ export function processMarkdown(
     sections,
   };
 }
-
-// Pre-process excel files with html for better results in embedding
-export function processExcelWithHTML() {
-  // TODO: Implement this function
-}

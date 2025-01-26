@@ -1,6 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { Database } from "../_lib/database.ts";
 import { processMarkdown } from "../_lib/markdown-parser.ts";
+import { processXls } from "../_lib/xls-parser.ts";
+//import { Document } from "npm:@langchain/core/documents";
 
 // Supabase Edge function to process the uploaded document
 // Edge functions are similar to AWS Lambda functions or Cloudflare Workers
@@ -52,7 +54,7 @@ Deno.serve(async (req) => {
     },
   });
 
-  // ----------------- GET RAWDOCUMENT -----------------
+  // ----------------- GET RAW DOCUMENT -----------------
   const { document_id } = await req.json();
 
   const { data: document } = await supabase
@@ -88,12 +90,53 @@ Deno.serve(async (req) => {
   }
 
   // ----------------- PROCESS DOCUMENT -----------------
-  // Handle different file types here
+  // Pre-processing the file based on the file type to clean up data before saving to db
+  console.log("PROCESS: File uploaded", file, document);
+  let processed;
+
+  // TODO: Add more supported file types
   const fileContents = await file.text();
-  const processedMd = processMarkdown(fileContents);
+  // Markdown
+  if (file?.type === "text/markdown") {
+    console.log("--------- PROCESS: Processing MD file ---------");
+
+    // @TODO: Deno cannot import @langchain/text-splitters for some reason, needs investigation why
+    /*const splitter = new RecursiveCharacterTextSplitter({
+      chunkSize: 50,
+      chunkOverlap: 1,
+      separators: ["|", "##", ">", "-"],
+    });
+
+    const docOutput = await splitter.splitDocuments([
+      new Document({ pageContent: fileContents }),
+    ]);
+
+    console.log("LANGCHAIN OUTPUT", docOutput);
+
+    processed = docOutput;
+    */
+    processed = processMarkdown(fileContents);
+  } else if (file?.type === "application/vnd.ms-excel") {
+    // XLS
+    console.log("--------- PROCESS: Processing XLS file ---------");
+    console.log("XLS file contents", fileContents);
+
+    processed = processXls(fileContents);
+  } else {
+    return new Response(
+      JSON.stringify({
+        error:
+          "File type not supported. Currently only Excel files and Markdown files are supported",
+      }),
+      {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
 
   const { error } = await supabase.from("document_sections").insert(
-    processedMd.sections.map(({ content }) => ({
+    processed?.sections?.map(({ content }) => ({
       document_id,
       content,
     }))
@@ -112,8 +155,9 @@ Deno.serve(async (req) => {
   }
 
   // ----------------- PROCESSING COMPLETE -----------------
+  console.log("--------- PROCESS: Processing complete ---------");
   console.log(
-    `Saved ${processedMd.sections.length} sections for file '${document.name}'`
+    `Saved ${processed.sections.length} sections for file '${document.name}'`
   );
 
   return new Response(null, {

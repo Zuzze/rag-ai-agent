@@ -3,11 +3,8 @@ import Messages from "./messages";
 export default function Login() {
   return (
     <div className="flex-1 flex flex-col w-full px-8 sm:max-w-md justify-center gap-2">
-      <video
-        src="https://cdn.pixabay.com/video/2021/06/04/76473-559159405_large.mp4"
-        autoPlay
-        loop
-        muted
+      <img
+        src="https://cdn.pixabay.com/photo/2021/11/26/17/26/desert-6826299_1280.jpg"
         className="absolute top-0 left-0 w-full h-full bg-cover object-cover z-0"
       />
       <div className="relative z-10">
@@ -35,12 +32,12 @@ export default function Login() {
             placeholder="••••••••"
             required
           />
-          <button className="bg-black rounded-full px-4 py-2 text-white mb-2">
+          <button className="bg-black hover:opacity-60 rounded-full px-4 py-2 text-white mb-2">
             Sign In
           </button>
           <button
             formAction="/auth/sign-up"
-            className="border border-gray-700 rounded-full px-4 py-2 text-black mb-2"
+            className="border border-gray-700 hover:opacity-60 rounded-full px-4 py-2 text-black mb-2"
           >
             Sign Up
           </button>

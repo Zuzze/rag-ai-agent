@@ -28,7 +28,7 @@ export default async function RootLayout({ children }: PropsWithChildren) {
       <body className="h-full">
         <Providers>
           <div className="flex flex-col items-center h-full">
-            <nav className="w-full flex justify-center border-b border-b-foreground/10 bg-white/30 backdrop-blur-xl z-10">
+            <nav className="w-full fixed top-0 flex justify-center border-b border-b-foreground/10 bg-white/30 backdrop-blur-xl z-10">
               <div className="max-w-6xl flex grow justify-end items-center text-sm text-foreground">
                 <div className="flex flex-row grow">
                   <Link
@@ -55,7 +55,7 @@ export default async function RootLayout({ children }: PropsWithChildren) {
                     <>
                       <Link
                         href="/files"
-                        className="py-4 px-6 cursor-pointer hover:bg-slate-100/10 font-bold"
+                        className="py-4 px-6 cursor-pointer hover:bg-slate-100/10 font-bold "
                       >
                         Documents
                       </Link>
